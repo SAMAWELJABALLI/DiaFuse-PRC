@@ -1,0 +1,154 @@
+{
+ "family_order": [
+  "gate",
+  "fusion",
+  "head",
+  "proto",
+  "loss",
+  "inputs"
+ ],
+ "configs": {
+  "V0": {
+   "family": "reference",
+   "impl": "orig",
+   "why": "Original DiaFuseTrainer, unchanged: reproduces B12 (Setting A)."
+  },
+  "P0": {
+   "family": "impl-check",
+   "why": "New implementation with default values; must match V0 on dev (implementation check, not a candidate)."
+  },
+  "V1a": {
+   "family": "gate",
+   "gate_zero_init": true,
+   "gate_tau": 2.0,
+   "why": "Uniform start and softer softmax: delays saturation (collapse is absorbing once alpha->one-hot)."
+  },
+  "V1b": {
+   "family": "gate",
+   "inherit": [
+    "V1a"
+   ],
+   "lam_lb": 0.1,
+   "why": "Load balancing 10x stronger: at collapse the original term is worth at most 0.01*ln3=0.011."
+  },
+  "V1c": {
+   "family": "gate",
+   "inherit": [
+    "V1a"
+   ],
+   "enc_dropout": 0.2,
+   "why": "Encoder dropout in the gate: every branch keeps receiving classification gradient."
+  },
+  "V1d": {
+   "family": "gate",
+   "inherit": [
+    "V1a"
+   ],
+   "gate_tau_learn": true,
+   "gate_floor": 0.1,
+   "why": "Learned temperature with a 10% uniform floor: no encoder can be switched off entirely."
+  },
+  "V1e": {
+   "family": "gate",
+   "inherit": [
+    "V1a"
+   ],
+   "lam_ent": 0.02,
+   "gate_noise": 0.5,
+   "why": "Noisy gating + per-example entropy penalty (MoE practice)."
+  },
+  "V2a": {
+   "family": "fusion",
+   "inherit": [
+    "V1a"
+   ],
+   "fusion": "gated_residual",
+   "enc_norm": true,
+   "why": "Static concat path + gated residual: keeps the information of all encoders even if the gate saturates."
+  },
+  "V2b": {
+   "family": "fusion",
+   "fusion": "concat_mlp",
+   "enc_norm": true,
+   "why": "Non-linear static fusion (B6-like) on the learned layer mixtures."
+  },
+  "V2c": {
+   "family": "fusion",
+   "fusion": "attn",
+   "enc_norm": true,
+   "gate_zero_init": true,
+   "gate_tau": 2.0,
+   "why": "Attention over encoder tokens with a query from [mean e; s(x)]."
+  },
+  "V2d": {
+   "family": "fusion",
+   "fusion": "wsum",
+   "enc_norm": true,
+   "why": "Input-independent learned weighted sum (tests whether input dependence is needed at all)."
+  },
+  "V3a": {
+   "family": "head",
+   "head": "mlp",
+   "why": "B12's decision path is linear end to end (LayerMix, convex mix and W are linear); B6 and B11 have non-linear capacity."
+  },
+  "V3b": {
+   "family": "head",
+   "head": "ln_mlp"
+  },
+  "V3c": {
+   "family": "head",
+   "head": "resmlp"
+  },
+  "V4a": {
+   "family": "proto",
+   "proto": "none",
+   "why": "Prototypes: no measurable benefit in the ablations (motivated post hoc; selected on dev only)."
+  },
+  "V4b": {
+   "family": "proto",
+   "decision": "proto_avg",
+   "why": "Use the prototypes in the decision (average with the head) instead of only as a loss."
+  },
+  "V4c": {
+   "family": "proto",
+   "lam_p": 0.1,
+   "why": "Lighter prototype loss."
+  },
+  "V5a": {
+   "family": "loss",
+   "lam_cl": 0.1,
+   "lam_hm": 0.1,
+   "lam_p": 0.1,
+   "why": "Five auxiliary losses at 0.5 each, never tuned; factorial interactions negative."
+  },
+  "V5b": {
+   "family": "loss",
+   "families": [
+    "TR"
+   ],
+   "why": "Consistency on transliteration only (motivated post hoc; selected on dev only)."
+  },
+  "V5c": {
+   "family": "loss",
+   "sched": "cosine",
+   "warmup": 0.1,
+   "lr": 0.0005,
+   "why": "Original optimisation: constant lr 1e-3, no warmup, no schedule."
+  },
+  "V6a": {
+   "family": "inputs",
+   "inherit": [
+    "V1a"
+   ],
+   "inputs": "last_default",
+   "why": "B6-style inputs (last layer, default pooling) instead of learned layer mixtures."
+  },
+  "V6b": {
+   "family": "inputs",
+   "inputs": "last_default",
+   "fusion": "concat_mlp",
+   "head": "mlp",
+   "why": "B6 representation + DiaFuse objective: isolates the objective from the backbone."
+  }
+ }
+}

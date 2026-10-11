@@ -1,0 +1,18 @@
+{
+ "cost/B3/extract": "0.4",
+ "cost/B6/extract": "1.4",
+ "cost/B10/extract": "1.4",
+ "cost/B12/extract": "1.4",
+ "cost/B3/train": "0.1",
+ "cost/B6/train": "0.1",
+ "cost/B10/train": "15.4",
+ "cost/B12/train": "5.9",
+ "cost/B3/infer": "10.7",
+ "cost/B6/infer": "47.4",
+ "cost/B10/infer": "47.4",
+ "cost/B12/infer": "47.4",
+ "cost/B10/params": "1.77M",
+ "cost/B12/params": "3.69M",
+ "cost/B1/train": "3.8",
+ "cost/B11/train": "11.6"
+}

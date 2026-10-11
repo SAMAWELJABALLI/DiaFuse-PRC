@@ -1,0 +1,45 @@
+{
+ "_doc": "Default values of Setting B (DiaFuse-PRC++). For Setting A they equal the original B12 run.",
+ "encoders": [
+  "xlmr",
+  "me5",
+  "labse"
+ ],
+ "adapt": "lora",
+ "lora_r": 8,
+ "lora_alpha": 16,
+ "lora_dropout": 0.1,
+ "lora_targets": [
+  "query",
+  "key",
+  "value"
+ ],
+ "pool": "attn",
+ "d": 512,
+ "fusion": "gate",
+ "gate_tau": 2.0,
+ "gate_zero_init": true,
+ "gate_floor": 0.0,
+ "enc_dropout": 0.0,
+ "lam_lb": 0.01,
+ "lam_ent": 0.0,
+ "head": "mlp",
+ "head_dropout": 0.1,
+ "lam_cons": 0.5,
+ "lam_js": 0.0,
+ "partner_ce": true,
+ "lam_p": 0.0,
+ "tau_p": 0.1,
+ "epochs": 3,
+ "batch": 8,
+ "max_len": 64,
+ "lr_enc": 1e-05,
+ "lr_lora": 0.0002,
+ "lr_head": 0.001,
+ "wd": 0.01,
+ "warmup": 0.1,
+ "dev_sets": [
+  "val_ar",
+  "val_gs"
+ ]
+}

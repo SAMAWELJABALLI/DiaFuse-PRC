@@ -1,0 +1,170 @@
+{
+ "_doc": "Single source of truth for the one-click run. Fixed before any run; the orchestrator never changes it.",
+ "protocol_version": "pp-1.0",
+ "encoders": "xlmr,me5,labse",
+ "seeds": {
+  "search": [
+   0,
+   1,
+   2
+  ],
+  "final": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9
+  ],
+  "ablation": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "reproduction": [
+   0,
+   1,
+   2
+  ]
+ },
+ "reproduction": {
+  "B12": {
+   "archived_file": "original/archived/dev_scores.json",
+   "keys": [
+    "B12/0",
+    "B12/1",
+    "B12/2"
+   ],
+   "metric": "dev macro-F1 (mean of val_ar, val_gs) at the early-stopping epoch",
+   "pass_abs_diff_per_seed": 0.005,
+   "warn_abs_diff_per_seed": 0.01,
+   "why": "GPU non-determinism and library versions; 0.5 point = ~1/4 of the seed sd of B12 on the test chain"
+  },
+  "B11": {
+   "archived_file": "original/archived/finetune_dev_log.json",
+   "system": "B11",
+   "seeds": [
+    "0",
+    "1",
+    "2"
+   ],
+   "metric": "best dev macro-F1 over the 3 epochs (finetune.py stdout)",
+   "pass_abs_diff_per_seed": 0.01,
+   "warn_abs_diff_per_seed": 0.02,
+   "why": "full fine-tuning of a 560M-parameter encoder is less deterministic than heads on cached features"
+  },
+  "P0_vs_V0": {
+   "pass_abs_diff_per_seed": 0.005,
+   "why": "new Setting-A implementation with default values must reproduce the original trainer; else Setting A variants are not run"
+  },
+  "FT0_vs_B11": {
+   "pass_abs_diff_mean": 0.01,
+   "why": "re-implemented B11 recipe (Setting B reference) must match original B11 dev scores of this run; else Setting B is not run"
+  }
+ },
+ "modes": {
+  "FULL": {
+   "settingA_configs": "all",
+   "settingB_configs": "all",
+   "ablations": "all"
+  },
+  "PRIORITY": {
+   "settingA_configs": [
+    "V0",
+    "P0",
+    "V1a",
+    "V1c",
+    "V3a",
+    "V6a",
+    "V6b"
+   ],
+   "settingB_configs": [
+    "FT0",
+    "FT2",
+    "FT3"
+   ],
+   "ablations": [
+    "FINAL-origgate",
+    "FINAL-minus-cons",
+    "FINAL-static",
+    "FINAL-minus-proto",
+    "FINAL-single"
+   ]
+  }
+ },
+ "selection_rule": {
+  "score": "mean over seeds of dev macro-F1 = mean(val_ar, val_gs) at the early-stopping epoch",
+  "min_seeds": 3,
+  "shortlist": "score(config) - score(reference) > max(sd_config, sd_reference)",
+  "tie_points": 0.2,
+  "tie_break": "fewer trainable parameters",
+  "references": {
+   "A": "V0",
+   "B": "FT0"
+  },
+  "never_uses": "test sets S0-S6, S5AR, S6AR, S6SYN"
+ },
+ "verdict_rule": {
+  "test": "paired bootstrap (diafuse_eval.paired_boot_p, 1000 class-stratified resamples, seed-averaged) one-sided, Holm over the 7 stages S0-S6",
+  "stage_win": "Holm-adjusted p < 0.05 AND mean difference > larger seed sd (decision rule of the paper)",
+  "OUTPERFORMS": "stage wins on >= 4 of 7 stages and no stage where B11 wins under the same rule",
+  "PARTIAL": "at least one stage win",
+  "DOES_NOT_OUTPERFORM": "no stage win"
+ },
+ "stages": {
+  "S0": "ar",
+  "S1": "gs",
+  "S2": "gu",
+  "S3": "tl",
+  "S4": "tz",
+  "S5": "na",
+  "S6": "my",
+  "S5AR": "naar",
+  "S6AR": "myar",
+  "S6SYN": "gsmy"
+ },
+ "table5": {
+  "_doc": "explicit mapping of the paper's Table 5 - never derived from column order",
+  "accuracy": [
+   [
+    "S0",
+    "ar"
+   ],
+   [
+    "S3",
+    "tl"
+   ],
+   [
+    "S6",
+    "my"
+   ]
+  ],
+  "em": [
+   [
+    "(S0,S1)",
+    "gs",
+    "ar"
+   ],
+   [
+    "(S0,S2)",
+    "gu",
+    "ar"
+   ],
+   [
+    "(S5AR,S5)",
+    "na",
+    "naar"
+   ]
+  ]
+ },
+ "parallel": {
+  "settingA_search_workers_if_A100_40GB": 2,
+  "min_ram_gb_for_parallel": 50
+ }
+}

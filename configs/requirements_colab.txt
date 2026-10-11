@@ -1,0 +1,14 @@
+# Colab A100 environment for the one-click run.
+# strict  : installed at exactly this version if absent or different (archived run used these versions)
+# missing : installed at this version only if the package is absent (Colab preinstalls most of them)
+# optional: installation failure is logged, not fatal
+# torch is NOT reinstalled (Colab's CUDA build is used); its version is recorded and compared with the archived run (2.11.0).
+transformers==5.18.0        # strict
+sentencepiece               # missing
+huggingface-hub             # missing
+scikit-learn                # missing
+scipy                       # missing
+pandas                      # missing
+matplotlib                  # missing
+umap-learn                  # missing
+deepsig                     # optional  (almost stochastic order test of the protocol)

@@ -1,0 +1,70 @@
+{
+ "family_order": [
+  "diafuse"
+ ],
+ "configs": {
+  "FT0": {
+   "family": "reference",
+   "encoders": [
+    "xlmr"
+   ],
+   "adapt": "full",
+   "pool": "attn",
+   "fusion": "single",
+   "head": "linear",
+   "lam_cons": 0.5,
+   "lam_js": 0.0,
+   "partner_ce": true,
+   "lam_lb": 0.0,
+   "why": "B11 recipe re-implemented in this script (must match B11 dev scores: implementation check and selection reference)."
+  },
+  "FT1": {
+   "family": "control",
+   "inherit": [
+    "FT0"
+   ],
+   "encoders": [
+    "me5"
+   ],
+   "why": "B11 recipe on mE5 (best frozen encoder): encoder effect without DiaFuse."
+  },
+  "FT2": {
+   "family": "diafuse",
+   "encoders": [
+    "xlmr",
+    "me5",
+    "labse"
+   ],
+   "adapt": "lora",
+   "fusion": "gate",
+   "head": "mlp",
+   "lam_js": 0.5,
+   "why": "DiaFuse++ Setting B: LoRA on the three encoders, fixed gate, MLP head, l2 + JS consistency."
+  },
+  "FT3": {
+   "family": "diafuse",
+   "inherit": [
+    "FT2"
+   ],
+   "fusion": "static",
+   "why": "Same with static concatenation (fusion control)."
+  },
+  "FT4": {
+   "family": "diafuse",
+   "inherit": [
+    "FT2"
+   ],
+   "enc_dropout": 0.2,
+   "lam_lb": 0.1,
+   "why": "Stronger anti-collapse."
+  },
+  "FT5": {
+   "family": "diafuse",
+   "inherit": [
+    "FT2"
+   ],
+   "lam_p": 0.1,
+   "why": "With class-prototype loss."
+  }
+ }
+}
